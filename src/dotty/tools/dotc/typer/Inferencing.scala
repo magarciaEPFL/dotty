@@ -250,7 +250,7 @@ object Inferencing {
    * of toString method. The problem is solved by dereferencing nullary method types if the corresponding
    * function type is not compatible with the prototype.
    */
-  def normalize(tp: Type, pt: Type)(implicit ctx: Context): Type = Stats.track("normalize") {
+  def normalize(tp: Type, pt: Type)(implicit ctx: Context): Type = /*>|> Stats.track("normalize") <|<*/ {
     tp.widenSingleton match {
       case pt: PolyType => normalize(constrained(pt).resultType, pt)
       case mt: MethodType if !mt.isDependent /*&& !pt.isInstanceOf[ApplyingProto]*/ =>
@@ -501,7 +501,7 @@ object Inferencing {
    *  approximate it by its lower bound. Otherwise, if it appears contravariantly
    *  in type `tp` approximate it by its upper bound.
    */
-  def interpolateUndetVars(tree: Tree)(implicit ctx: Context): Unit = Stats.track("interpolateUndetVars") {
+  def interpolateUndetVars(tree: Tree)(implicit ctx: Context): Unit = /*>|> Stats.track("interpolateUndetVars") <|<*/ {
     val tp = tree.tpe.widen
     val constraint = ctx.typerState.constraint
 

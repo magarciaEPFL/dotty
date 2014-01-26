@@ -141,7 +141,7 @@ object Types {
      *  Lazy values are not allowed to have volatile type, as otherwise
      *  unsoundness can result.
      */
-    final def isVolatile(implicit ctx: Context): Boolean = track("isVolatile") {
+    final def isVolatile(implicit ctx: Context): Boolean = /*>|> track("isVolatile") <|<*/ {
       ctx.isVolatile(this)
     }
 
@@ -449,7 +449,7 @@ object Types {
     /** This type seen as if it were the type of a member of prefix type `pre`
      *  declared in class `cls`.
      */
-    final def asSeenFrom(pre: Type, cls: Symbol)(implicit ctx: Context): Type = track("asSeenFrom") {
+    final def asSeenFrom(pre: Type, cls: Symbol)(implicit ctx: Context): Type = /*>|> track("asSeenFrom") <|<*/ {
       if (!cls.membersNeedAsSeenFrom(pre)) this
       else ctx.asSeenFrom(this, pre, cls, null)
     }
@@ -457,7 +457,7 @@ object Types {
 // ----- Subtype-related --------------------------------------------
 
     /** Is this type a subtype of that type? */
-    final def <:<(that: Type)(implicit ctx: Context): Boolean = track("<:<") {
+    final def <:<(that: Type)(implicit ctx: Context): Boolean = /*>|> track("<:<") <|<*/ {
       ctx.typeComparer.isSubType(this, that)
     }
 
@@ -825,7 +825,7 @@ object Types {
      *  +1 means: only covariant occurrences
      *  0 means: mixed or non-variant occurrences
      */
-    def variances(include: TypeVar => Boolean)(implicit ctx: Context): VarianceMap = track("variances") {
+    def variances(include: TypeVar => Boolean)(implicit ctx: Context): VarianceMap = /*>|> track("variances") <|<*/ {
       val accu = new TypeAccumulator[VarianceMap] {
         def apply(vmap: VarianceMap, t: Type): VarianceMap = t match {
           case t: TypeVar if include(t) =>

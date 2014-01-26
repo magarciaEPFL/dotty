@@ -1090,8 +1090,8 @@ class Typer extends Namer with Applications with Implicits {
       fallBack
     }
 
-  def adapt(tree: Tree, pt: Type)(implicit ctx: Context) = track("adapt") {
-    ctx.traceIndented(i"adapting $tree of type ${tree.tpe} to $pt", typr, show = true) {
+  def adapt(tree: Tree, pt: Type)(implicit ctx: Context) = /*>|> track("adapt") <|<*/ {
+    /*>|> ctx.traceIndented(i"adapting $tree of type ${tree.tpe} to $pt", typr, show = true) <|<*/ {
       interpolateUndetVars(tree)
       tree overwriteType tree.tpe.simplified
       adaptInterpolated(tree, pt)
