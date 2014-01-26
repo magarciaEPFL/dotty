@@ -1026,7 +1026,7 @@ class Typer extends Namer with Applications with Implicits {
     }
   }
 
-  def typed(tree: untpd.Tree, pt: Type = WildcardType)(implicit ctx: Context): Tree = /*>|>*/ ctx.traceIndented (s"typing ${tree.show}", typr, show = true) /*<|<*/ {
+  def typed(tree: untpd.Tree, pt: Type = WildcardType)(implicit ctx: Context): Tree = /*>|> ctx.traceIndented (s"typing ${tree.show}", typr, show = true) <|<*/ {
     if (!tree.isEmpty && ctx.typerState.isGlobalCommittable) assert(tree.pos.exists, tree)
     try adapt(typedUnadapted(tree, pt), pt)
     catch {

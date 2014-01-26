@@ -632,7 +632,7 @@ object Inferencing {
    *  maximized and return None. If this is not possible, because a non-variant
    *  typevar is not uniquely determined, return that typevar in a Some.
    */
-  def maximizeType(tp: Type)(implicit ctx: Context): Option[TypeVar] = Stats.track("maximizeType") {
+  def maximizeType(tp: Type)(implicit ctx: Context): Option[TypeVar] = /*>|> Stats.track("maximizeType") <|<*/ {
     val constraint = ctx.typerState.constraint
     val vs = tp.variances(constraint contains _)
     var result: Option[TypeVar] = None

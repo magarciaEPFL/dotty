@@ -113,8 +113,8 @@ object Implicits {
 
     /** The implicit references that are eligible for expected type `tp` */
     lazy val eligible: List[TermRef] =
-      /*>|>*/ track("eligible in tpe") /*<|<*/ {
-        /*>|>*/ ctx.traceIndented(i"eligible($tp), companions = ${companionRefs.toList}%, %", implicitsDetailed, show = true) /*<|<*/ {
+      /*>|> track("eligible in tpe") <|<*/ {
+        /*>|> ctx.traceIndented(i"eligible($tp), companions = ${companionRefs.toList}%, %", implicitsDetailed, show = true) <|<*/ {
           if (refs.nonEmpty && monitored) record(s"check eligible refs in tpe", refs.length)
           filterMatching(tp)
         }
@@ -135,7 +135,7 @@ object Implicits {
     private val eligibleCache = new mutable.AnyRefMap[Type, List[TermRef]]
 
     /** The implicit references that are eligible for type `tp`. */
-    def eligible(tp: Type): List[TermRef] = /*>|>*/ track(s"eligible in ctx") /*<|<*/ {
+    def eligible(tp: Type): List[TermRef] = /*>|> track(s"eligible in ctx") <|<*/ {
       if (tp.hash == NotCached) computeEligible(tp)
       else eligibleCache get tp match {
         case Some(eligibles) =>
@@ -153,7 +153,7 @@ object Implicits {
       }
     }
 
-    private def computeEligible(tp: Type): List[TermRef] = /*>|>*/ ctx.traceIndented(i"computeEligible $tp in $refs%, %", implicitsDetailed) /*<|<*/ {
+    private def computeEligible(tp: Type): List[TermRef] = /*>|> ctx.traceIndented(i"computeEligible $tp in $refs%, %", implicitsDetailed) <|<*/ {
       if (monitored) record(s"check eligible refs in ctx", refs.length)
       val ownEligible = filterMatching(tp)
       if (outerImplicits == NoContext.implicits) ownEligible
