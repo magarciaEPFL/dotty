@@ -10,7 +10,7 @@ object Config {
 
   final val checkCacheMembersNamed = false
 
-  final val checkConstraintsNonCyclic = true
+  final val checkConstraintsNonCyclic = false
 
   /** Throw an exception if a deep subtype recursion is detected */
   final val flagDeepSubTypeRecursions = true

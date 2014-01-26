@@ -983,7 +983,7 @@ object SymDenotations {
       } else computeNPMembersNamed(name)
     }
 
-    private def computeNPMembersNamed(name: Name)(implicit ctx: Context): PreDenotation = /*>|>*/ Stats.track("computeNPMembersNamed") /*<|<*/ {
+    private def computeNPMembersNamed(name: Name)(implicit ctx: Context): PreDenotation = /*>|> Stats.track("computeNPMembersNamed") <|<*/ {
       if (!classSymbol.hasChildren ||
           !Config.useFingerPrints ||
           (memberFingerPrint contains name)) {
@@ -1052,7 +1052,7 @@ object SymDenotations {
         }
       }
 
-      /*>|>*/ ctx.debugTraceIndented(s"$tp.baseType($this)") /*<|<*/ {
+      /*>|> ctx.debugTraceIndented(s"$tp.baseType($this)") <|<*/ {
         if (symbol.isStatic && tp.derivesFrom(symbol))
           symbol.typeRef
         else tp match {

@@ -327,7 +327,7 @@ object Types {
     }
 
     /** The member of this type with the given name  */
-    final def member(name: Name)(implicit ctx: Context): Denotation = /*>|>*/ track("member-" + name) /*<|<*/ {
+    final def member(name: Name)(implicit ctx: Context): Denotation = /*>|> track("member-" + name) <|<*/ {
       findMember(name, widenIfUnstable, EmptyFlags)
     }
 
@@ -488,7 +488,7 @@ object Types {
       }
 
     /** The basetype of this type with given class symbol */
-    final def baseType(base: Symbol)(implicit ctx: Context): Type = /*ctx.traceIndented(s"$this baseType $base")*/ /*>|>*/ track("baseType") /*<|<*/ {
+    final def baseType(base: Symbol)(implicit ctx: Context): Type = /*ctx.traceIndented(s"$this baseType $base")*/ /*>|> track("baseType") <|<*/ {
       base.denot match {
         case classd: ClassDenotation => classd.baseTypeOf(this)
         case _ => NoType
