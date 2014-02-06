@@ -27,6 +27,8 @@ import core.Constants.Constant
  */
 abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
 
+  import ast.tpd._
+
   /*
    * Functionality to build the body of ASM MethodNode, except for `synchronized` and `try` expressions.
    */

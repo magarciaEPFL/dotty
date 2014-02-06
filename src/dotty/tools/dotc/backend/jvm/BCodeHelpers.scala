@@ -12,7 +12,6 @@ import scala.annotation.switch
 import scala.collection.{ immutable, mutable }
 import scala.tools.nsc.io.AbstractFile
 
-import dotc.ast.Trees.Tree
 import dotc.core.Types.Type
 import dotc.core.Symbols.{Symbol, NoSymbol}
 

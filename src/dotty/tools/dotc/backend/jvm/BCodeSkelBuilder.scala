@@ -55,6 +55,8 @@ abstract class BCodeSkelBuilder extends BCodeHelpers {
     with    BCPickles
     with    BCJGenSigGen {
 
+    import ast.tpd._
+
     // Strangely I can't find this in the asm code 255, but reserving 1 for "this"
     final val MaximumJvmParameters = 254
 

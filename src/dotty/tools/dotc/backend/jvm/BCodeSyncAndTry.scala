@@ -14,7 +14,7 @@ import scala.annotation.switch
 
 import scala.tools.asm
 
-import dotc.ast.Trees.Tree
+import dotc.ast.Trees._
 import dotc.core.Types.Type
 import dotc.core.Symbols.{Symbol, NoSymbol}
 
@@ -30,6 +30,8 @@ abstract class BCodeSyncAndTry extends BCodeBodyBuilder {
    * Functionality to lower `synchronized` and `try` expressions.
    */
   abstract class SyncAndTryBuilder(cunit: CompilationUnit) extends PlainBodyBuilder(cunit) {
+
+    import ast.tpd._
 
     def genSynchronized(tree: ast.Trees.Apply[Type], expectedType: BType): BType = {
       val ast.Trees.Apply(fun, args) = tree
