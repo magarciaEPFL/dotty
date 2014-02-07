@@ -1219,7 +1219,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
             genCond(rhs, success, failure)
           }
 
-          getPrimitive(fun.symbol) match {
+          scalaPrimitives.getPrimitive(fun.symbol) match {
             case ZNOT   => genCond(lhs, failure, success)
             case ZAND   => genZandOrZor(and = true)
             case ZOR    => genZandOrZor(and = false)

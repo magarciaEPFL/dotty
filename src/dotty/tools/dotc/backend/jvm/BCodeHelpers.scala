@@ -80,13 +80,13 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
 
     /*
      *  This method is thread re-entrant because chrs never grows during its operation (that's because all TypeNames being looked up have already been entered).
-     *  To stress this point, rather than using `newTypeName()` we use `lookupTypeName()`
+     *  To stress this point, rather than using `Names.typeName()` we use `lookupTypeName()`
      *
      *  can-multi-thread
      */
     override def getCommonSuperClass(inameA: String, inameB: String): String = {
-      val a = brefType(lookupTypeName(inameA.toCharArray))
-      val b = brefType(lookupTypeName(inameB.toCharArray))
+      val a = brefType(core.Names.lookupTypeName(inameA.toCharArray))
+      val b = brefType(core.Names.lookupTypeName(inameB.toCharArray))
       val lca = jvmWiseLUB(a, b)
       val lcaName = lca.getInternalName // don't call javaName because that side-effects innerClassBuffer.
       assert(lcaName != "scala/Any")

@@ -9,6 +9,8 @@ package backend.jvm
 
 object BType {
 
+  import dotc.core.Names
+
   // ------------- sorts -------------
 
   val VOID   : Int =  0
@@ -39,14 +41,14 @@ object BType {
   /*
    * Returns the Java type corresponding to the given type descriptor.
    *
-   * @param off the offset of this descriptor in the chrs buffer.
+   * @param off the offset of this descriptor in the Names.chrs buffer.
    * @return the Java type corresponding to the given type descriptor.
    *
    * can-multi-thread
    */
   def getType(off: Int): BType = {
     var len = 0
-    chrs(off) match {
+    Names.chrs(off) match {
       case 'V' => VOID_TYPE
       case 'Z' => BOOLEAN_TYPE
       case 'C' => CHAR_TYPE
@@ -58,27 +60,27 @@ object BType {
       case 'D' => DOUBLE_TYPE
       case '[' =>
         len = 1
-        while (chrs(off + len) == '[') {
+        while (Names.chrs(off + len) == '[') {
           len += 1
         }
-        if (chrs(off + len) == 'L') {
+        if (Names.chrs(off + len) == 'L') {
           len += 1
-          while (chrs(off + len) != ';') {
+          while (Names.chrs(off + len) != ';') {
             len += 1
           }
         }
         new BType(ARRAY, off, len + 1)
       case 'L' =>
         len = 1
-        while (chrs(off + len) != ';') {
+        while (Names.chrs(off + len) != ';') {
           len += 1
         }
         new BType(OBJECT, off + 1, len - 1)
       // case '(':
       case _ =>
-        assert(chrs(off) == '(')
+        assert(Names.chrs(off) == '(')
         var resPos = off + 1
-        while (chrs(resPos) != ')') { resPos += 1 }
+        while (Names.chrs(resPos) != ')') { resPos += 1 }
         val resType = getType(resPos + 1)
         val len = resPos - off + 1 + resType.len;
         new BType(
@@ -97,7 +99,7 @@ object BType {
    *  can-multi-thread
    */
   def getObjectType(index: Int, length: Int): BType = {
-    val sort = if (chrs(index) == '[') ARRAY else OBJECT;
+    val sort = if (Names.chrs(index) == '[') ARRAY else OBJECT;
     new BType(sort, index, length)
   }
 
@@ -107,7 +109,7 @@ object BType {
    * must-single-thread
    */
   def getMethodType(methodDescriptor: String): BType = {
-    val n = global.newTypeName(methodDescriptor)
+    val n = Names.typeName(methodDescriptor)
     new BType(BType.METHOD, n.start, n.length) // TODO assert isValidMethodDescriptor
   }
 
@@ -121,7 +123,7 @@ object BType {
    * must-single-thread
    */
   def getMethodType(returnType: BType, argumentTypes: Array[BType]): BType = {
-    val n = global.newTypeName(getMethodDescriptor(returnType, argumentTypes))
+    val n = Names.typeName(getMethodDescriptor(returnType, argumentTypes))
     new BType(BType.METHOD, n.start, n.length)
   }
 
@@ -138,7 +140,7 @@ object BType {
     val args = new Array[BType](getArgumentCount(idx0))
     var off = idx0
     var size = 0
-    while (chrs(off) != ')') {
+    while (Names.chrs(off) != ')') {
       args(size) = getType(off)
       off += args(size).len
       if (args(size).sort == OBJECT) { off += 2 }
@@ -158,17 +160,17 @@ object BType {
    * can-multi-thread
    */
   private def getArgumentCount(idx0: Int): Int = {
-    assert(chrs(idx0 - 1) == '(', "doesn't look like a method descriptor.")
+    assert(Names.chrs(idx0 - 1) == '(', "doesn't look like a method descriptor.")
     var off  = idx0
     var size = 0
     var keepGoing = true
     while (keepGoing) {
-      val car = chrs(off)
+      val car = Names.chrs(off)
       off += 1
       if (car == ')') {
         keepGoing = false
       } else if (car == 'L') {
-        while (chrs(off) != ';') { off += 1 }
+        while (Names.chrs(off) != ';') { off += 1 }
         off += 1
         size += 1
       } else if (car != '[') {
@@ -189,7 +191,7 @@ object BType {
    * must-single-thread
    */
   def getReturnType(methodDescriptor: String): BType = {
-    val n     = global.newTypeName(methodDescriptor)
+    val n     = Names.typeName(methodDescriptor)
     val delta = n.pos(')') // `delta` is relative to the Name's zero-based start position, not a valid index into chrs.
     assert(delta < n.length, s"not a valid method descriptor: $methodDescriptor")
     getType(n.start + delta + 1)
@@ -230,6 +232,8 @@ object BType {
  * All methods of this classs can-multi-thread
  */
 final class BType(val sort: Int, val off: Int, val len: Int) {
+
+  import dotc.core.Names
 
   /*
    * can-multi-thread
@@ -453,10 +457,10 @@ final class BType(val sort: Int, val off: Int, val len: Int) {
       buf.append(((off & 0xFF000000) >>> 24).asInstanceOf[Char])
     } else if (sort == BType.OBJECT) {
       buf.append('L')
-      buf.append(chrs, off, len)
+      buf.append(Names.chrs, off, len)
       buf.append(';')
     } else { // sort == ARRAY || sort == METHOD
-      buf.append(chrs, off, len)
+      buf.append(Names.chrs, off, len)
     }
   }
 
@@ -537,7 +541,7 @@ final class BType(val sort: Int, val off: Int, val len: Int) {
       }
       var i = 0
       while (i < len) {
-        if (chrs(off + i) != chrs(t.off + i)) {
+        if (Names.chrs(off + i) != Names.chrs(t.off + i)) {
           return false
         }
         i += 1
@@ -559,7 +563,7 @@ final class BType(val sort: Int, val off: Int, val len: Int) {
       var i = off
       val end = i + len
       while (i < end) {
-        hc = 17 * (hc + chrs(i))
+        hc = 17 * (hc + Names.chrs(i))
         i += 1
       }
     }
