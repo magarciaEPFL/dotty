@@ -12,6 +12,7 @@ import scala.annotation.switch
 import scala.collection.{ immutable, mutable }
 import scala.tools.nsc.io.AbstractFile
 
+import dotc.core.StdNames
 import dotc.core.Types.Type
 import dotc.core.Symbols.{Symbol, NoSymbol}
 
@@ -155,7 +156,7 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
       def failNoForwarder(msg: String) = {
         fail(s"$msg, which means no static forwarder can be generated.\n")
       }
-      val possibles = if (sym.hasModuleFlag) (sym.tpe nonPrivateMember nme.main).alternatives else Nil
+      val possibles = if (sym.hasModuleFlag) (sym.tpe nonPrivateMember StdNames.nme.main).alternatives else Nil
       val hasApproximate = possibles exists { m =>
         m.info match {
           case MethodType(p :: Nil, _) => p.tpe.typeSymbol == definitions.ArrayClass
@@ -228,7 +229,7 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
   /*
    *  must-single-thread
    */
-  def fieldSymbols(cls: Symbol): List[Symbol] = {
+  def fieldSymbols(cls: Symbol)(implicit ctx: core.Contexts.Context): List[Symbol] = {
     for (f <- cls.info.decls.toList ;
          if !f.isMethod && f.isTerm && !f.isModule
     ) yield f;
@@ -326,14 +327,14 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
      * can-multi-thread
      */
     def pickleMarkerLocal = {
-      createJAttribute(tpnme.ScalaSignatureATTR.toString, versionPickle.bytes, 0, versionPickle.writeIndex)
+      createJAttribute(StdNames.tpnme.ScalaSignatureATTR.toString, versionPickle.bytes, 0, versionPickle.writeIndex)
     }
 
     /*
      * can-multi-thread
      */
     def pickleMarkerForeign = {
-      createJAttribute(tpnme.ScalaATTR.toString, new Array[Byte](0), 0, 0)
+      createJAttribute(StdNames.tpnme.ScalaATTR.toString, new Array[Byte](0), 0, 0)
     }
 
     /*  Returns a ScalaSignature annotation if it must be added to this class, none otherwise.
@@ -359,7 +360,7 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
      */
     def getAnnotPickle(jclassName: String, sym: Symbol): Option[AnnotationInfo] = {
       currentRun.symData get sym match {
-        case Some(pickle) if !nme.isModuleName(newTermName(jclassName)) =>
+        case Some(pickle) if !StdNames.nme.isModuleName(newTermName(jclassName)) =>
           val scalaAnnot = {
             val sigBytes = ScalaSigBytes(pickle.bytes.take(pickle.writeIndex))
             AnnotationInfo(sigBytes.sigAnnot, Nil, (nme.bytes, sigBytes) :: Nil)

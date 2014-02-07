@@ -33,7 +33,8 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
   /*
    * Functionality to build the body of ASM MethodNode, except for `synchronized` and `try` expressions.
    */
-  abstract class PlainBodyBuilder(cunit: CompilationUnit) extends PlainSkelBuilder(cunit) {
+  abstract class PlainBodyBuilder(cunit:   CompilationUnit,
+                                  implicit val ctx: dotc.core.Contexts.Context) extends PlainSkelBuilder(cunit) {
 
     import icodes.TestOp
     import icodes.opcodes.InvokeStyle
@@ -914,7 +915,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
         assert(args.length == params.length, s"Wrong number of arguments in call to label at: $gotoPos")
 
         def isTrivial(kv: (Tree, Symbol)) = kv match {
-          case (This(_), p) if p.name == nme.THIS     => true
+          case (This(_), p) if p.name == StdNames.nme.THIS     => true
           case (arg @ Ident(_), p) if arg.symbol == p => true
           case _                                      => false
         }
@@ -929,7 +930,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
       aps.reverse foreach {
         case (_, param) =>
           // TODO FIXME a "this" param results from tail-call xform. If so, the `else` branch seems perfectly fine. And the `then` branch must be wrong.
-          if (param.name == nme.THIS) mnode.visitVarInsn(asm.Opcodes.ASTORE, 0)
+          if (param.name == StdNames.nme.THIS) mnode.visitVarInsn(asm.Opcodes.ASTORE, 0)
           else locals.store(param)
       }
 
@@ -942,7 +943,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
     def genLoadModule(tree: Tree): BType = {
       val module = (
         if (!tree.symbol.isPackageClass) tree.symbol
-        else tree.symbol.info.member(nme.PACKAGE) match {
+        else tree.symbol.info.member(StdNames.nme.PACKAGE) match {
           case NoSymbol => abort(s"SI-5604: Cannot use package as value: $tree")
           case s        => abort(s"SI-5604: found package class where package object expected: $tree")
         }
@@ -1287,7 +1288,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
           genCZJUMP(success, failure, icodes.EQ, ObjectReference)
         } else {
           // l == r -> if (l eq null) r eq null else l.equals(r)
-          val eqEqTempLocal = locals.makeLocal(AnyRefReference, nme.EQEQ_LOCAL_VAR.toString)
+          val eqEqTempLocal = locals.makeLocal(AnyRefReference, StdNames.nme.EQEQ_LOCAL_VAR.toString)
           val lNull    = new asm.Label
           val lNonNull = new asm.Label
 

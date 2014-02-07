@@ -51,7 +51,8 @@ object GenBCode extends BCodeSyncAndTry {
 
   val phaseName = "jvm"
 
-  final class PlainClassBuilder(cunit: CompilationUnit) extends SyncAndTryBuilder(cunit)
+  final class PlainClassBuilder(cunit: CompilationUnit,
+                                ctx:   dotc.core.Contexts.Context) extends SyncAndTryBuilder(cunit)
 
   class BCodePhase extends dotc.core.Phases.Phase {
 
@@ -119,7 +120,8 @@ object GenBCode extends BCodeSyncAndTry {
     /*
      *  Pipeline that takes ClassDefs from queue-1, lowers them into an intermediate form, placing them on queue-2
      */
-    class Worker1(needsOutFolder: Boolean) {
+    class Worker1(needsOutFolder: Boolean,
+                  implicit val ctx: dotc.core.Contexts.Context) {
 
       val caseInsensitively = mutable.Map.empty[String, Symbol]
 
@@ -176,7 +178,7 @@ object GenBCode extends BCodeSyncAndTry {
           } else null
 
         // -------------- "plain" class --------------
-        val pcb = new PlainClassBuilder(cunit)
+        val pcb = new PlainClassBuilder(cunit, ctx)
         pcb.genPlainClass(cd)
         val outF = if (needsOutFolder) getOutFolder(claszSymbol, pcb.thisName, cunit) else null;
         val plainC = pcb.cnode
@@ -275,7 +277,7 @@ object GenBCode extends BCodeSyncAndTry {
       beanInfoCodeGen = new JBeanInfoBuilder
 
       val needsOutfileForSymbol = bytecodeWriter.isInstanceOf[ClassBytecodeWriter]
-      buildAndSendToDisk(needsOutfileForSymbol, units)
+      buildAndSendToDisk(needsOutfileForSymbol, units, ctx)
 
       // closing output files.
       bytecodeWriter.close()
@@ -306,10 +308,12 @@ object GenBCode extends BCodeSyncAndTry {
      *    (c) dequeue one at a time from queue-2, convert it to byte-array,    place in queue-3
      *    (d) serialize to disk by draining queue-3.
      */
-    private def buildAndSendToDisk(needsOutFolder: Boolean, units: List[CompilationUnit]) {
+    private def buildAndSendToDisk(needsOutFolder: Boolean,
+                                   units: List[CompilationUnit],
+                                   ctx: dotc.core.Contexts.Context) {
 
       feedPipeline1(units)
-      (new Worker1(needsOutFolder)).run()
+      (new Worker1(needsOutFolder, ctx)).run()
       (new Worker2).run()
       drainQ3()
 
