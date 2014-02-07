@@ -16,6 +16,7 @@ import scala.tools.asm
 
 import dotc.ast.Trees._
 import core.Types.Type
+import core.StdNames
 import core.Symbols.{Symbol, NoSymbol}
 import core.Constants.Constant
 
@@ -348,7 +349,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
       tree match {
         case lblDf : LabelDef => genLabelDef(lblDf, expectedType)
 
-        case ValDef(_, nme.THIS, _, _) =>
+        case ValDef(_, StdNames.nme.THIS, _, _) =>
           debuglog("skipping trivial assign to _$this: " + tree)
 
         case ValDef(_, _, _, rhs) =>
@@ -400,7 +401,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
               else brefType(thisName) // inner class (if any) for claszSymbol already tracked.
           }
 
-        case Select(Ident(nme.EMPTY_PACKAGE_NAME), module) =>
+        case Select(Ident(StdNames.nme.EMPTY_PACKAGE_NAME), module) =>
           assert(tree.symbol.isModule, s"Selection of non-module from empty package: $tree sym: ${tree.symbol} at: ${tree.pos}")
           genLoadModule(tree)
 
@@ -665,7 +666,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
         // thought to return an instance of what they construct,
         // we have to 'simulate' it by DUPlicating the freshly created
         // instance (on JVM, <init> methods return VOID).
-        case Apply(fun @ Select(New(tpt), nme.CONSTRUCTOR), args) =>
+        case Apply(fun @ Select(New(tpt), StdNames.nme.CONSTRUCTOR), args) =>
           val ctor = fun.symbol
           assert(ctor.isClassConstructor, s"'new' call to non-constructor: ${ctor.name}")
 
@@ -835,7 +836,7 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
           case Literal(value) =>
             flatKeys ::= value.intValue
             targets  ::= switchBlockPoint
-          case Ident(nme.WILDCARD) =>
+          case Ident(StdNames.nme.WILDCARD) =>
             assert(default == null, s"multiple default targets in a Match node, at ${tree.pos}")
             default = switchBlockPoint
           case Alternative(alts) =>

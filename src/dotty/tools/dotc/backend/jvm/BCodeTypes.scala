@@ -12,6 +12,7 @@ import scala.collection.{ immutable, mutable }
 
 import dotc.ast.Trees.Tree
 import dotc.core.Types.Type
+import dotc.core.StdNames
 import dotc.core.Symbols.{Symbol, NoSymbol}
 
 /*
@@ -185,7 +186,7 @@ abstract class BCodeTypes extends BCodeIdiomatic {
   val PublicStatic      = asm.Opcodes.ACC_PUBLIC | asm.Opcodes.ACC_STATIC
   val PublicStaticFinal = asm.Opcodes.ACC_PUBLIC | asm.Opcodes.ACC_STATIC | asm.Opcodes.ACC_FINAL
 
-  val strMODULE_INSTANCE_FIELD = nme.MODULE_INSTANCE_FIELD.toString
+  val strMODULE_INSTANCE_FIELD = StdNames.nme.MODULE_INSTANCE_FIELD.toString
 
   // ------------------------------------------------
   // accessory maps tracking the isInterface, innerClasses, superClass, and supportedInterfaces relations,
@@ -248,7 +249,7 @@ abstract class BCodeTypes extends BCodeIdiomatic {
     def isInnerClass = { innersChain != null }
     def isLambda = {
       // ie isLCC || isTraditionalClosureClass
-      isFinal && (c.getSimpleName.contains(tpnme.ANON_FUN_NAME.toString)) && isFunctionType(c)
+      isFinal && (c.getSimpleName.contains(StdNames.tpnme.ANON_FUN.toString)) && isFunctionType(c)
     }
 
     /* can-multi-thread */
@@ -749,7 +750,7 @@ abstract class BCodeTypes extends BCodeIdiomatic {
         null
       else {
         val outerName = innerSym.rawowner.javaBinaryName
-        if (isTopLevelModule(innerSym.rawowner)) nme.stripModuleSuffix(outerName)
+        if (isTopLevelModule(innerSym.rawowner)) StdNames.nme.stripModuleSuffix(outerName)
         else outerName
       }
     }
